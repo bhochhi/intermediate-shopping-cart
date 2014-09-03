@@ -5,6 +5,8 @@ var fs = require('fs');
 var qs = require('querystring');
 var root = __dirname;
 var items = [];
+var counter = 0;
+var url = require('url');
 
 var server = http.createServer(function(req, res){
 
@@ -19,7 +21,7 @@ var server = http.createServer(function(req, res){
   function showList() {
     var myList = '';
     items.forEach(function(item, i){
-      myList += (i + '. ' + item + '<br><form action="/" method="put"><input type="text" name="edited-item"><button>Update</button></form>');
+      myList += (i + '. ' + item.name + '<br><form action="/" method="put"><input type="text" name=' + i + '><button>Update</button></form>');
     });
     res.write('<div>' +  myList + '</div>');
   }
@@ -40,19 +42,26 @@ var server = http.createServer(function(req, res){
         });
         req.on('end', function(){
           okStatusHeader();
-          items.push(qs.parse(item).item);
+          items.push({'id': counter, 'name': qs.parse(item).item});
+          counter++;
           newItemForm();
           showList();
+          console.log(items);
           res.end();
         });
       break;
       case 'PUT':
-        var j ='';
+        var k = '';
+        var pathname = url.parse(req.url).pathname;
+        var j = pathname.slice(1);
         req.on('data', function(chunk){
-          j += chunk;
+          k += chunk;
         }); 
         req.on('end', function(){
-          console.log('done');
+          console.log(k);
+          // items[j].name = k;
+          // newItemForm();
+          // showList();
         }); 
     }
   }
